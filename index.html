@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SpectraZone 3D Image Viewer | Robust 3D Viewer</title>
+    <meta
+      name="description"
+      content="SpectraZone is a robust  3D image viewer. Upload any image and view as Plane, Cylinder, Sphere, Cube, or Torus. Fast, secure, and privacy-friendly." />
+    <meta
+      name="keywords"
+      content="3D viewer, image viewer, SpectraZone, plane, cylinder, sphere, cube, torus, privacy, fast, robust" />
+    <meta name="author" content="SpectraZone" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' rx='12' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='64' y2='64' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%2300f2d6'/%3E%3Cstop offset='1' stop-color='%232f7dff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='50%' y='54%' text-anchor='middle' font-family='Segoe UI,Arial,sans-serif' font-size='32' font-weight='bold' fill='%23012827' dy='.35em'%3ESZ%3C/text%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="errBox"></div>
+    <div id="stage"></div>
+
+    <div class="drop-wrap" id="dropWrap">
+      <div class="left">
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div class="logo">SZ</div>
+          <div>
+            <h1>SpectraZone</h1>
+            <div class="sub">
+              Robust 3D viewer — upload any image and view as Plane / Cylinder /
+              Sphere / Cube / Torus
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 18px">
+          <div style="font-weight: 700; font-size: 1.15rem">
+            Drop or upload your image
+          </div>
+          <div style="color: rgba(230, 245, 255, 0.75); margin-top: 6px">
+            Click Upload or drag an image into the window. After upload click
+            <strong>Scan</strong>.
+          </div>
+          <div class="actions" style="margin-top: 12px">
+            <button class="btn" id="uploadBtn">Upload Image</button>
+            <button class="btn ghost" id="exampleBtn">Load Example</button>
+            <button class="btn ghost" id="clearBtn" style="display: none">
+              Clear
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          align-items: flex-end;
+        ">
+        <div class="preview" id="previewBox">
+          <div style="opacity: 0.36">Preview</div>
+        </div>
+        <div style="display: flex; gap: 8px">
+          <button class="btn ghost" id="scanBtn" disabled>Scan</button>
+          <button class="btn" id="uploadAgain" style="display: none">
+            Upload New
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls" id="controls">
+      <div class="row">
+        <label for="shapeSel">Shape</label
+        ><select id="shapeSel">
+          <option value="plane">Plane</option>
+          <option value="curved">Curved</option>
+          <option value="cube">Cube</option>
+          <option value="sphere">Sphere</option>
+          <option value="torus">Torus</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>Depth (Plane)</label
+        ><input
+          id="depthRange"
+          type="range"
+          min="0"
+          max="0.9"
+          step="0.02"
+          value="0.28" />
+      </div>
+      <div class="row">
+        <label>Curve</label
+        ><input
+          id="curveRange"
+          type="range"
+          min="0.25"
+          max="1.15"
+          step="0.02"
+          value="0.65" />
+      </div>
+      <div class="row">
+        <label>Orbit</label><input id="orbitCheck" type="checkbox" checked />
+      </div>
+      <div class="row">
+        <label>Speed</label
+        ><input
+          id="rotSpeed"
+          type="range"
+          min="0"
+          max="0.03"
+          step="0.0005"
+          value="0.0038" />
+      </div>
+      <div class="row">
+        <label>Zoom</label
+        ><input
+          id="zoomRange"
+          type="range"
+          min="2"
+          max="18"
+          step="0.1"
+          value="6" />
+      </div>
+      <div class="row" style="justify-content: flex-end">
+        <button class="btn ghost" id="tiltUp">Tilt ▲</button>
+        <button class="btn ghost" id="tiltDown">Tilt ▼</button>
+        <button class="btn ghost" id="rotLeft">⟲</button>
+        <button class="btn ghost" id="rotRight">⟳</button>
+        <button class="btn" id="resetBtn">Reset</button>
+      </div>
+    </div>
+
+    <div class="right-cluster" id="rightCluster">
+      <div style="display: flex; gap: 8px">
+        <button class="btn" id="exportBtn">Export PNG</button>
+        <button class="btn ghost" id="backBtn">Back</button>
+      </div>
+    </div>
+
+    <div class="hint">
+      Drag to rotate • Wheel/pinch to zoom • Right-drag to pan
+    </div>
+    <input id="fileInput" type="file" accept="image/*" style="display: none" />
+
+    <!-- three.js and OrbitControls (examples non-module attach to THREE) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script>
+      // Patch for OrbitControls global attach
+      window.THREE = THREE;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script src="script.js"></script>
+  </body>
+</html>
