@@ -382,6 +382,30 @@ function applyParallax() {
   geo.computeVertexNormals();
 }
 
+/**
+ * Bends a plane geometry along the X axis to create a curved effect.
+ * @param {THREE.PlaneGeometry} geometry - The plane geometry to bend.
+ * @param {number} curveAmount - The amount of curvature (0 = flat, higher = more curve).
+ */
+function bendPlaneGeometry(geometry, curveAmount) {
+  const pos = geometry.attributes.position;
+  const width = geometry.parameters.width;
+  const segments = geometry.parameters.widthSegments;
+  const radius = width / curveAmount;
+
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const z = pos.getZ(i);
+
+    // Bend along X axis
+    const theta = (x / width) * curveAmount;
+    pos.setY(i, Math.sin(theta) * radius);
+    pos.setZ(i, Math.cos(theta) * radius - radius + z);
+  }
+  pos.needsUpdate = true;
+  geometry.computeVertexNormals();
+}
+
 function animate() {
   requestAnimationFrame(animate);
   if (mainMesh && orbitEnabled) {

@@ -44,6 +44,11 @@ body {
   transform: translate(-50%, -50%) scale(1.02);
   border: 1px solid rgba(0, 255, 200, 0.16);
 }
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .left {
   flex: 1;
   display: flex;
@@ -171,6 +176,7 @@ select:focus {
     flex-direction: column;
     align-items: flex-start;
     padding: 12px;
+    border: none;
   }
   .controls {
     left: 10px;
@@ -191,4 +197,29 @@ select:focus {
   color: #600;
   border: 1px solid rgba(200, 0, 0, 0.12);
   display: none;
+}
+
+@media (max-width: 600px) {
+  .hint {
+    display: none;
+  }
+  .logo-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .row.curved-row {
+    display: none;
+  }
+  .controls {
+    flex-direction: column;
+    height: 280px;
+  }
+  .drop-wrap {
+    height: 480px;
+  }
+  canvas {
+    display: block;
+    width: 300px !important;
+    height: 420px !important;
+  }
 }
